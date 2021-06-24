@@ -1,10 +1,10 @@
 import React, { useState } from "react";
+import toast from "react-toastify";
+
 import TableReport from "../../../common/table/table";
-import ViewHolesTable from "./ViewHolesTable.js";
 import MessageEmptyData from "../../../common/messageEmptyData";
 import ModalConfirmation from "../../../common/modal/ModalConfirmation";
 import apiClient from "../../../../utils/apiClient";
-import toast from "react-toastify";
 import * as ArrayHelpers from "../../../../utils/arrayHelpers";
 
 /**

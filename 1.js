@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import apiClient from "../../../../utils/apiClient";
+
 import FormSelect from "../../../forms/form-control/FormSelect";
 import FormSubmitButton from "../../../forms/form-control/FormSubmitButton";
+import apiClient from "../../../../utils/apiClient";
 
 /**
  * Filter component for DirectEntry Report
@@ -11,11 +12,11 @@ import FormSubmitButton from "../../../forms/form-control/FormSubmitButton";
  */
 
 const ViewHolesFilters = (prop) => {
-  const { register, handleSubmit, errors } = useForm();
   const { filters, setFilters, setTableData } = prop;
+  const { register, handleSubmit, errors } = useForm();
   const [disciplines, setDisciplines] = useState([]);
   const [jobs, setJobs] = useState([]);
-  let counter = 0;
+  const [counter, setCounter] = useState(0);
 
   // get filters data
   useEffect(() => {
@@ -30,9 +31,8 @@ const ViewHolesFilters = (prop) => {
         id: id,
         name: name,
       }));
-      counter++;
       setDisciplines(disciplineItems);
-      setCounter(counter);
+      setCounter((counter) => counter + 1);
     } catch (err) {
       console.log(err);
     }
@@ -78,7 +78,7 @@ const ViewHolesFilters = (prop) => {
       const { data } = await apiClient.post("getDailyHolesByJobId", {
         job_id: filters.job_id,
       });
-      if (Objects.keys(data).length == 0) {
+      if (Objects.keys(data).length === 0) {
         setTableData([]);
         return;
       }

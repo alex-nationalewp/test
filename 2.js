@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import toast from "react-toastify";
 
+import ViewHolesTable from "./ViewHolesTable";
 import TableReport from "../../../common/table/table";
 import MessageEmptyData from "../../../common/messageEmptyData";
 import ModalConfirmation from "../../../common/modal/ModalConfirmation";
@@ -19,16 +20,16 @@ const ViewHolesBodys = (prop) => {
     prop;
   const [deactivateModal, setDeactivateModal] = useState({
     isOpen: false,
-    message: <p></p>,
+    message: "",
   });
   const [approveModal, setApproveModal] = useState({
     isOpen: false,
-    message: <p></p>,
+    message: "",
   });
 
   const [disapproveModal, setDisapproveModal] = useState({
     isOpen: false,
-    message: <p></p>,
+    message: "",
   });
 
   const DeactivateHandler = async () => {
@@ -54,14 +55,7 @@ const ViewHolesBodys = (prop) => {
       const { data } = apiClient.post("approveDaily", {
         id: selectedRow.daily_id,
       });
-      const newTableData = ArrayHelpers.replaceDailyObjectsFromArray(
-        tableData,
-        "daily_id",
-        data.id,
-        data.row
-      );
-      setTableData(newTableData);
-      toast.success(data.message);
+      updateTableData(data);
     } catch (err) {
       console.log(err);
     }
@@ -73,18 +67,22 @@ const ViewHolesBodys = (prop) => {
       const { data } = apiClient.post("disapproveDaily", {
         id: selectedRow.daily_id,
       });
-      const newTableData = ArrayHelpers.replaceDailyObjectsFromArray(
-        tableData,
-        "daily_id",
-        Number(data.id),
-        data.row
-      );
-      setTableData(newTableData);
-      toast.success(data.message);
+      updateTableData(data);
     } catch (err) {
       console.log(err);
     }
     setDisapproveModal({ ...disapproveModal, isOpen: false });
+  };
+
+  const updateTableData = (data) => {
+    const newTableData = ArrayHelpers.replaceDailyObjectsFromArray(
+      tableData,
+      "daily_id",
+      Number(data.id),
+      data.row
+    );
+    setTableData(newTableData);
+    toast.success(data.message);
   };
 
   if (!filters.isSubmitted) {
@@ -98,7 +96,7 @@ const ViewHolesBodys = (prop) => {
   return (
     <div className="container-fluid">
       <TableReport
-        columns={ViewHolesTabl(
+        columns={ViewHolesTable(
           setSelectedRow,
           setApproveModal,
           setDisapproveModal,

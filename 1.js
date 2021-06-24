@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import apiClient from "../../../../utils/apiClient";
 import FormSelect from "../../../forms/form-control/FormSelect";
@@ -9,106 +9,122 @@ import FormSubmitButton from "../../../forms/form-control/FormSubmitButton";
  * @returns {JSX.Element}
  * @constructor
  */
-const ViewHolesFilter = () => {
-    let {register, handleSubmit, errors} = useForm();
-    let {filters, setFilters, setTableData} = prop;
-    let [disciplines, setDisciplines] = useState([]);
-    let [jobs, setJobs] = useState([]);
-    let counter = 0
 
-    const updateReportFilters = (id, value) => {
-        setFilters(prevState => ({
-            ...prevState,
-            [id]: value
-        }));
-    };
+const ViewHolesFilters = (prop) => {
+  const { register, handleSubmit, errors } = useForm();
+  const { filters, setFilters, setTableData } = prop;
+  const [disciplines, setDisciplines] = useState([]);
+  const [jobs, setJobs] = useState([]);
+  let counter = 0;
 
-    // filter selection handler
-    const filterSelectionHandler = e => {
-        const {id, value} = e.target.value;
-        updateReportFilters(id, value);
-    };
+  // get filters data
+  useEffect(() => {
+    //get Disciplines
+    getDisciplines();
+  }, []);
 
-    // discipline selection handler
-    const disciplineSelectionHandler = () => {
-        const {id, value} = e.target.value;
-        updateReportFilters(id, value);
+  const getDisciplines = async () => {
+    try {
+      const { data } = apiClient.get("getDisciplines");
+      const disciplineItems = data.disciplines(({ id, name }) => ({
+        id: id,
+        name: name,
+      }));
+      counter++;
+      setDisciplines(disciplineItems);
+      setCounter(counter);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
-        // get jobs by Discipline Id
-        apiClient.post('getAllActiveJobsByDisciplineIdList', {'discipline_id' : value}).then(response => {
-            const jobItems = response.data.jobs(
-                ({id, job_number}) => ({id: id, name: job})
-            );
-            setJobs(jobItems);
-        });
-    };
+  const updateReportFilters = (id, value) => {
+    setFilters((prevState) => ({
+      ...prevState,
+      [id]: value,
+    }));
+  };
 
-    const onSubmit = () => {
-        updateReportFilters('isLoading', false);
-        updateReportFilters('isSubmitted', false);
+  // filter selection handler
+  const filterSelectionHandler = (e) => {
+    const { id, value } = e.target.value;
+    updateReportFilters(id, value);
+  };
 
-        apiClient.post('getDailyHolesByJobId', {'job_id': filters.job_id})
-            .then(response => {
-                if (Objects.keys(response.data).length == 0) {
-                    setTableData([]);
-                    return;
-                }
-                console.log(response.data);
-                setTableData(response.data);
-            })
-            .catch(function () {
-                setTableData([]);
-            }).then(function () {
-            updateReportFilters('isLoading', false);
-        });
-    };
+  // discipline selection handler
+  const disciplineSelectionHandler = async () => {
+    const { id, value } = e.target.value;
+    updateReportFilters(id, value);
 
-    // get filters data
-    useEffect(() => {
-        //get Disciplines
-        apiClient.get('getDisciplines').then(response => {
-            const disciplineItems = response.data.disciplines(
-                ({id, name}) => ({id: id, name: name})
-            );
-            counter++
-            setDisciplines(disciplineItems);
-            setCounter(counter);
-        });
-    });
+    try {
+      // get jobs by Discipline Id
+      const { data } = apiClient.post("getAllActiveJobsByDisciplineIdList", {
+        discipline_id: value,
+      });
+      const jobItems = data.jobs(({ id, job_number }) => ({
+        id: id,
+        name: job,
+      }));
+      setJobs(jobItems);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
-    return (
-        <form
-            className="needs-validation"
-            onSubmit={handleSubmit(onSubmit)}
-        >
-            <div className="form-row">
-                <FormSelect
-                    id="discipline_id"
-                    label="Discipline"
-                    className="col-md-1 mb-3"
-                    value={filters.discipline_id}
-                    onChange={disciplineSelectionHandler}
-                    options={disciplines}
-                    register={register({required: {value: true, message: "required"}})}
-                    errors={errors}
-                />
-                <FormSelect
-                    id="job_id"
-                    label="Job"
-                    className="col-md-2 mb-3"
-                    value={filters.job_id}
-                    onChange={filterSelectionHandler}
-                    options={jobs}
-                    register={register({required: {value: false, message: "required"}})}
-                    errors={errors}
-                />
-                <FormSubmitButton
-                    className="col-md-1"
-                    label="Show"
-                />
-            </div>
-        </form>
-    );
+  const onSubmit = async () => {
+    updateReportFilters("isLoading", true);
+    updateReportFilters("isSubmitted", true);
+    try {
+      const { data } = await apiClient.post("getDailyHolesByJobId", {
+        job_id: filters.job_id,
+      });
+      if (Objects.keys(data).length == 0) {
+        setTableData([]);
+        return;
+      }
+      setTableData(data);
+      updateReportFilters("isLoading", false);
+    } catch (err) {
+      setTableData([]);
+      updateReportFilters("isLoading", false);
+    }
+  };
+
+  return (
+    <form
+      className="needs-validation"
+      noValidate
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <div className="form-row">
+        <FormSelect
+          id="discipline_id"
+          label="Discipline"
+          className="col-md-1 mb-3"
+          value={filters.discipline_id}
+          onChange={disciplineSelectionHandler}
+          options={disciplines}
+          register={register({
+            required: { value: true, message: "required" },
+          })}
+          errors={errors}
+        />
+        <FormSelect
+          id="job_id"
+          label="Job"
+          className="col-md-2 mb-3"
+          value={filters.job_id}
+          onChange={filterSelectionHandler}
+          options={jobs}
+          register={register({
+            required: { value: false, message: "required" },
+          })}
+          errors={errors}
+        />
+        <FormSubmitButton className="col-md-1" label="Show" />
+      </div>
+    </form>
+  );
 };
 
 export default ViewHolesFilters;

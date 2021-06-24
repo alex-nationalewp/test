@@ -26,79 +26,72 @@ const ViewHolesBodys = (prop) => {
     message: <p></p>,
   });
 
-  const DeactivateHandler = () => {
-    apiClient
-      .post("deactivateDaily", { id: selectedRow.daily_id })
-      .then(({ data }) => {
-        const newTableData = ArrayHelpers.removeDailyObjFromArray(
-          tableData,
-          "daily_id",
-          data
-        );
-        setTableData(newTableData);
-        toast.success(data.message);
-      })
-      .catch(function () {
-        //In case of error do nothing!!
-        //let apiClient to handle the error
-      })
-      .then(function () {
-        //close deactivateModal
-        setDeactivateModal({ ...deactivateModal, isOpen: false });
+  const [disapproveModal, setDisapproveModal] = useState({
+    isOpen: false,
+    message: <p></p>,
+  });
+
+  const DeactivateHandler = async () => {
+    try {
+      const { data } = apiClient.post("deactivateDaily", {
+        id: selectedRow.daily_id,
       });
+      const newTableData = ArrayHelpers.removeDailyObjFromArray(
+        tableData,
+        "daily_id",
+        data
+      );
+      setTableData(newTableData);
+      toast.success(data.message);
+    } catch (err) {
+      console.log(err);
+    }
+    setDeactivateModal({ ...deactivateModal, isOpen: false });
   };
 
-  const ApproveHandler = () => {
-    apiClient
-      .post("approveDaily", { id: selectedRow.daily_id })
-      .then(({ data }) => {
-        const newTableData = ArrayHelpers.replaceDailyObjectsFromArray(
-          tableData,
-          "daily_id",
-          data.id,
-          data.row
-        );
-        setTableData(newTableData);
-        toast.success(data.message);
-      })
-      .catch(function () {
-        //In case of error do nothing!!
-        //let apiClient to handle the error
-      })
-      .then(function () {
-        //close deactivateModal
-        setApproveModal({ ...approveModal, isOpen: false });
+  const ApproveHandler = async () => {
+    try {
+      const { data } = apiClient.post("approveDaily", {
+        id: selectedRow.daily_id,
       });
+      const newTableData = ArrayHelpers.replaceDailyObjectsFromArray(
+        tableData,
+        "daily_id",
+        data.id,
+        data.row
+      );
+      setTableData(newTableData);
+      toast.success(data.message);
+    } catch (err) {
+      console.log(err);
+    }
+    setApproveModal({ ...approveModal, isOpen: false });
   };
 
-  const DisapproveHandler = () => {
-    apiClient
-      .post("disapproveDaily", { id: selectedRow.daily_id })
-      .then(({ data }) => {
-        const newTableData = ArrayHelpers.replaceDailyObjectsFromArray(
-          tableData,
-          "daily_id",
-          Number(data.id),
-          data.row
-        );
-        setTableData(newTableData);
-        toast.success(data.message);
-      })
-      .catch(function () {
-        //In case of error do nothing!!
-        //let apiClient to handle the error
-      })
-      .then(function () {
-        //close deactivateModal
-        setDisapproveModal({ ...disapproveModal, isOpen: false });
+  const DisapproveHandler = async () => {
+    try {
+      const { data } = apiClient.post("disapproveDaily", {
+        id: selectedRow.daily_id,
       });
+      const newTableData = ArrayHelpers.replaceDailyObjectsFromArray(
+        tableData,
+        "daily_id",
+        Number(data.id),
+        data.row
+      );
+      setTableData(newTableData);
+      toast.success(data.message);
+    } catch (err) {
+      console.log(err);
+    }
+    setDisapproveModal({ ...disapproveModal, isOpen: false });
   };
 
   if (!filters.isSubmitted) {
     return null;
   }
 
-  if (tableData.length == 0) {
+  if (tableData.length === 0) {
     return <MessageEmptyData />;
   }
 

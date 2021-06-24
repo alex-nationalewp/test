@@ -83,11 +83,10 @@ const ViewHolesFilters = (prop) => {
         return;
       }
       setTableData(data);
-      updateReportFilters("isLoading", false);
     } catch (err) {
       setTableData([]);
-      updateReportFilters("isLoading", false);
     }
+    updateReportFilters("isLoading", false);
   };
 
   return (
